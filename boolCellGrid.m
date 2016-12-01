@@ -95,6 +95,10 @@ classdef boolCellGrid < handle
                 % later)
                 outCells = 1:obj.bandwidth;
                 inCells = (obj.numGenes - obj.bandwidth +1):obj.numGenes;
+                
+                assert(isempty(find(...
+                    ~( (initTruth==-1)+(initTruth==0)+(initTruth==1) ), 1 )),...
+                    'Initial state matrix should be all 0''s and 1''s')
                 Ttable = initTruth;
             end
             
