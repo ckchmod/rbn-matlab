@@ -98,7 +98,7 @@ classdef boolCellGrid < handle
                 
                 assert(isempty(find(...
                     ~( (initTruth==-1)+(initTruth==0)+(initTruth==1) ), 1 )),...
-                    'Initial state matrix should be all 0''s and 1''s')
+                    'Initial truth table matrix should be all -1''s, 0''s, and 1''s')
                 Ttable = initTruth;
             end
             
@@ -106,6 +106,9 @@ classdef boolCellGrid < handle
             if isempty(initVar)
                 varF = genvarF(obj, inCells);
             else
+                assert(isempty(find(...
+                    ~( (initVar>=-1).*(initVar<=numGenes) ), 1 )),...
+                    'Initial connectivity matrix (varF) should only connect to nodes within the cell')
                 varF = initVar;
             end
             
