@@ -304,40 +304,42 @@ classdef boolCellGrid < handle
                         neighList(jX,:) = [jXmin1, jXplu1];
                     end
                     
-%                 case 'orthogonal'
-%                     
-%                     gridSide = round(sqrt(numCells));
-%                     
-%                     assert(gridSide-sqrt(numCells)<1e-4,...
-%                         'Only square grids are supported for now');
-%                     
-%                     matSize(1:2) = [gridSide;gridSide];
-%                     
-%                     neighList = zeros(matSize(1)*matSize(2),4);
-%                     
-%                     for jY = 1:matSize(1)-1
-%                         for jX = 1:matSize(2)-1
-%                             
-%                             %Get the linear index of the current point
-%                             jLin = sub2ind(matSize,jY,jX);
-%                             
-%                             %x neighbors
-%                             if jY~=1
-%                                 jYmin1 = sub2ind(matSize,jY-1,jX);
-%                             else
-%                                 jYmin1 = sub2ind(matSize,jY-1+matSize(1),jX);
-%                             end
-% 
-%                             if jX~=1
-%                                 jXmin1 = sub2ind(matSize,jY,jX-1);
-%                             else
-%                                 jXmin1 = sub2ind(matSize,jY,jX-1+matSize(2));
-%                             end
-% 
-%                             disp(jLin);
-%                             neighList(jLin,:) = [jYmin1, jXmin1];
-%                         end
-%                     end
+
+                case 'orthogonal'
+                    
+                    gridSide = round(sqrt(numCells));
+                    
+                    assert(gridSide-sqrt(numCells)<1e-4,...
+                        'Only square grids are supported for now');
+                    
+                    matSize(1:2) = [gridSide;gridSide];
+                    
+                    neighList = zeros(matSize(1)*matSize(2),2);
+                    
+                    for jY = 1:matSize(1)
+                        for jX = 1:matSize(2)
+                            
+                            %Get the linear index of the current point
+                            jLin = sub2ind(matSize,jY,jX);
+                            
+                            %x neighbors; only to the West
+                            if jY~=1
+                                jYmin1 = sub2ind(matSize,jY-1,jX);
+                            else
+                                jYmin1 = sub2ind(matSize,jY-1+matSize(1),jX);
+                            end
+                            
+                            %y neighbors; only to the South
+                            if jX~=1
+                                jXmin1 = sub2ind(matSize,jY,jX-1);
+                            else
+                                jXmin1 = sub2ind(matSize,jY,jX-1+matSize(2));
+                            end
+                            
+                            
+                            neighList(jLin,:) = [jYmin1, jXmin1];
+                        end
+                    end
                     
                     
                 otherwise
