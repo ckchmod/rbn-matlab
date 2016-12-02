@@ -7,16 +7,22 @@ classdef boolCellGrid < handle
     %
     % EXAMPLES
     %
-    %   EXAMPLE1 - a=boolCellGrid('line',4,18,0,0, true); a.update_all(10)
-    %       This creates a default boolCellGrid object, the original
-    %       drosophila network, and simulates for 10 timesteps (it will
-    %       reach a steady state)
-    %
-    %   EXAMPLE2 - a=boolCellGrid('line',4,18,2,3,false,42);
-    %       a.update_all(50); 
-    %       a.plot_cells;
-    %           This random network seems to produce an oscillation
-    %
+    %     EXAMPLE1 - 
+    %     % Create a RBN
+    %     
+    %     a=boolCellGrid('symmetric',4,18,2,.5,1, [], [], []); 
+    %     a.update_all(50); 
+    %     a.plot_cells(1.0);
+    %      
+    % 
+    %     EXAMPLE2 -
+    %     % Store arrays (Initial States, Truth Table, Wiring Nodes) and run the specified parameters
+    %     
+    %     i = a.initStates;
+    %     t = a.initTtable;
+    %     v = a.initvarF;
+    %     b = boolCellGrid('symmetric',4,18,2,.5,1, i, t, v);
+    %           
     % Dependencies
     %   Other m-files required: boolCell.m
     %   Subfunctions:
@@ -52,6 +58,7 @@ classdef boolCellGrid < handle
         timenow     %Current time
         initTtable  %Truth table
         initvarF    %Intracellular connectivity
+        initStates  %Initial States
         initInCells %Which cells receive input
         initOutCells%Which cells produce output
         criticality %Criticality measured by 2Kp(1-p)=1
@@ -76,18 +83,21 @@ classdef boolCellGrid < handle
             obj.p         = p;
             obj.bandwidth = bandwidth;
             
+            
             %Get the randomized initial states
             if isempty(initState)
                 initialStates = genInit(obj);
             else
+                dim = size(initState);
                 assert(isempty(find(...
                     ~( (initState==0)+(initState==1) ), 1 )),...
                     'Initial state matrix should be all 0''s and 1''s')
-                assert(size(initState)==[numCells,numGenes],...
+                assert((dim(1)==numCells && dim(2)==numGenes),...
                     'Initial state matrix should have size (numCells x numGenes)')
                 
                 initialStates = initState;
             end
+            obj.initStates = initialStates;
             
             %Generate the intercellular connectivity
             if isempty(initTruth)
@@ -96,13 +106,14 @@ classdef boolCellGrid < handle
             else
                 % temporarily moved this to here..(may need to fix it
                 % later)
-                outCells = 1:obj.bandwidth;
-                inCells = (obj.numGenes - obj.bandwidth +1):obj.numGenes;
+                dim = size(initTruth);
+                inCells = 1:obj.bandwidth;
+                outCells = (obj.numGenes - obj.bandwidth +1):obj.numGenes;
                 
                 assert(isempty(find(...
                     ~( (initTruth==-1)+(initTruth==0)+(initTruth==1) ), 1 )),...
                     'Truth table matrix should be all -1''s, 0''s, and 1''s')
-                assert(size(initTruth)==[2^k,numGenes],...
+                assert((dim(1)==2^k && dim(2) == numGenes),...
                     'Truth table matrix should have size (2^k x numGenes)')
                 Ttable = initTruth;
             end
@@ -111,10 +122,11 @@ classdef boolCellGrid < handle
             if isempty(initVar)
                 varF = genvarF(obj, inCells);
             else
+                dim = size(initVar);
                 assert(isempty(find(...
                     ~( (initVar>=-1).*(initVar<=numGenes) ), 1 )),...
                     'Initial connectivity matrix (varF) should only connect to nodes within the cell')
-                assert(size(initVar)==[k,numGenes],...
+                assert((dim(1)==k && dim(2) == numGenes),...
                     'Connectivity matrix should have size (k x numGenes)')
                 
                 varF = initVar;
@@ -147,7 +159,7 @@ classdef boolCellGrid < handle
             
             %Output Critcality of individual Boolean Network
             obj.crit_val = 2*k*p*(1-p);
-            
+                
             if (obj.crit_val < 1)
                 obj.criticality = 'Ordered';
             elseif (obj.crit_val > 1)
@@ -218,7 +230,6 @@ classdef boolCellGrid < handle
                     %We want to have a matrix of all the states, because
                     %our actual cells are on a grid
                     stateVec = obj.allStates(:,:,jT); %Get the vector of states
-                    
                     stateVecFlat = zeros(obj.numCells,1);
                     for jGene=1:obj.numGenes
                         %Translate the gene state into a big integer

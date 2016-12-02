@@ -1,20 +1,25 @@
 Readme for the boolCellGrid.m grid class and the boolCell.m class
 
-11/29/2016
+12/1/2016
 
 Here are a couple examples to get everybody started, and they're at the top of the boolCellGrid class:
 
     
-      EXAMPLE2 - 
-	a=boolCellGrid('line',4,18,2,.5,1, [], [], []); a.update_all(50); a.plot_cells(1.0);
-              This random network seems to produce an oscillation.
-		The optional argument in the method 'plot_cells' will pause the graph
+      EXAMPLE1 - 
+	% Create a RBN
+    
+    a=boolCellGrid('symmetric',4,18,2,.5,1, [], [], []); 
+    a.update_all(50); 
+    a.plot_cells(1.0);
+     
 
-      EXAMPLE3 -
-	a=boolCellGrid('symmetric',5^2,18,2,3,false,42); a.update_all(20); a.plot_cells;
-	      This is a matrix of cells (5x5) that is visualized as we mentioned before class, 
-	    	with a unique color for each cell state. It's not as pretty as we might want it though,
-		and the states can blend into each other pretty easily
+      EXAMPLE2 -
+    % Store arrays (Initial States, Truth Table, Wiring Nodes) and run the specified parameters
+    
+    i = a.initStates;
+    t = a.initTtable;
+    v = a.initvarF;
+    b = boolCellGrid('symmetric',4,18,2,.5,1, i, t, v);
 
 
 Copy and paste the MATLAB code above to run some examples!
