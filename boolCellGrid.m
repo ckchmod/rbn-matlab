@@ -52,6 +52,7 @@ classdef boolCellGrid < handle
         timenow     %Current time
         initTtable  %Truth table
         initvarF    %Intracellular connectivity
+        initStates  %Initial States
         initInCells %Which cells receive input
         initOutCells%Which cells produce output
         criticality %Criticality measured by 2Kp(1-p)=1
@@ -76,18 +77,21 @@ classdef boolCellGrid < handle
             obj.p         = p;
             obj.bandwidth = bandwidth;
             
+            
             %Get the randomized initial states
             if isempty(initState)
                 initialStates = genInit(obj);
             else
+                dim = size(initState);
                 assert(isempty(find(...
                     ~( (initState==0)+(initState==1) ), 1 )),...
                     'Initial state matrix should be all 0''s and 1''s')
-                assert(size(initState)==[numCells,numGenes],...
+                assert((dim(1)==numCells && dim(2)==numGenes),...
                     'Initial state matrix should have size (numCells x numGenes)')
                 
                 initialStates = initState;
             end
+            obj.initStates = initialStates;
             
             %Generate the intercellular connectivity
             if isempty(initTruth)
@@ -96,13 +100,14 @@ classdef boolCellGrid < handle
             else
                 % temporarily moved this to here..(may need to fix it
                 % later)
+                dim = size(initTruth);
                 outCells = 1:obj.bandwidth;
                 inCells = (obj.numGenes - obj.bandwidth +1):obj.numGenes;
                 
                 assert(isempty(find(...
                     ~( (initTruth==-1)+(initTruth==0)+(initTruth==1) ), 1 )),...
                     'Truth table matrix should be all -1''s, 0''s, and 1''s')
-                assert(size(initTruth)==[2^k,numGenes],...
+                assert((dim(1)==2^k && dim(2) == numGenes),...
                     'Truth table matrix should have size (2^k x numGenes)')
                 Ttable = initTruth;
             end
@@ -111,10 +116,11 @@ classdef boolCellGrid < handle
             if isempty(initVar)
                 varF = genvarF(obj, inCells);
             else
+                dim = size(initVar);
                 assert(isempty(find(...
                     ~( (initVar>=-1).*(initVar<=numGenes) ), 1 )),...
                     'Initial connectivity matrix (varF) should only connect to nodes within the cell')
-                assert(size(initVar)==[k,numGenes],...
+                assert((dim(1)==k && dim(2) == numGenes),...
                     'Connectivity matrix should have size (k x numGenes)')
                 
                 varF = initVar;
