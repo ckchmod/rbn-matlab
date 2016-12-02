@@ -242,6 +242,22 @@ classdef boolCellGrid < handle
             
         end
         
+        
+        %---------------------------------------------
+        % Hamming distance
+        %---------------------------------------------
+        function rhs = ham(A,B)
+            %hamming distance is the number of positions at which A and B differ. Since
+            %A and B are matrices of zero and 1 this is just the sum of the absolute value of the difference
+            %between each entry in the final time step
+            
+            
+            
+            rhs = sum(sum(abs(A.allStates(:,:,end)-B.allStates(:,:,end))));
+        end
+
+
+
     end
     
     
