@@ -7,16 +7,22 @@ classdef boolCellGrid < handle
     %
     % EXAMPLES
     %
-    %   EXAMPLE1 - a=boolCellGrid('line',4,18,0,0, true); a.update_all(10)
-    %       This creates a default boolCellGrid object, the original
-    %       drosophila network, and simulates for 10 timesteps (it will
-    %       reach a steady state)
-    %
-    %   EXAMPLE2 - a=boolCellGrid('line',4,18,2,3,false,42);
-    %       a.update_all(50); 
-    %       a.plot_cells;
-    %           This random network seems to produce an oscillation
-    %
+    %     EXAMPLE1 - 
+    %     % Create a RBN
+    %     
+    %     a=boolCellGrid('symmetric',4,18,2,.5,1, [], [], []); 
+    %     a.update_all(50); 
+    %     a.plot_cells(1.0);
+    %      
+    % 
+    %     EXAMPLE2 -
+    %     % Store arrays (Initial States, Truth Table, Wiring Nodes) and run the specified parameters
+    %     
+    %     i = a.initStates;
+    %     t = a.initTtable;
+    %     v = a.initvarF;
+    %     b = boolCellGrid('symmetric',4,18,2,.5,1, i, t, v);
+    %           
     % Dependencies
     %   Other m-files required: boolCell.m
     %   Subfunctions:
@@ -101,8 +107,8 @@ classdef boolCellGrid < handle
                 % temporarily moved this to here..(may need to fix it
                 % later)
                 dim = size(initTruth);
-                outCells = 1:obj.bandwidth;
-                inCells = (obj.numGenes - obj.bandwidth +1):obj.numGenes;
+                inCells = 1:obj.bandwidth;
+                outCells = (obj.numGenes - obj.bandwidth +1):obj.numGenes;
                 
                 assert(isempty(find(...
                     ~( (initTruth==-1)+(initTruth==0)+(initTruth==1) ), 1 )),...
@@ -153,7 +159,7 @@ classdef boolCellGrid < handle
             
             %Output Critcality of individual Boolean Network
             obj.crit_val = 2*k*p*(1-p);
-            
+                
             if (obj.crit_val < 1)
                 obj.criticality = 'Ordered';
             elseif (obj.crit_val > 1)
@@ -224,7 +230,6 @@ classdef boolCellGrid < handle
                     %We want to have a matrix of all the states, because
                     %our actual cells are on a grid
                     stateVec = obj.allStates(:,:,jT); %Get the vector of states
-                    
                     stateVecFlat = zeros(obj.numCells,1);
                     for jGene=1:obj.numGenes
                         %Translate the gene state into a big integer

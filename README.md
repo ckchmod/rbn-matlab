@@ -12,7 +12,7 @@ Here are a couple examples to get everybody started, and they're at the top of t
     a.plot_cells(1.0);
      
 
-      EXAMPLE2 -
+    EXAMPLE2 -
     % Store arrays (Initial States, Truth Table, Wiring Nodes) and run the specified parameters
     
     i = a.initStates;
