@@ -281,6 +281,34 @@ classdef boolCellGrid < handle
             rhs = sum(sum(abs(A.allStates(:,:,end)-B.allStates(:,:,end))));
         end
 
+        
+        %---------------------------------------------
+        % Insert mutant cell(s)
+        %---------------------------------------------
+        function obj = insert_mutants(obj, mutCell, mutPos)
+            %This function takes a grid of (probably identical) cells and
+            %adds a cell of type 'mutCell' in position(s) 'mutPos'
+            
+            %Safety checks
+            assert( isa(obj,'boolCellGrid'),...
+                'First argument should be an object of class boolCellGrid');
+            assert( isa(mutCell,'boolCell'),...
+                'Second argument should be an object of class boolCell');
+            assert( isvector(mutPos), ...
+                'Third argument should be a vector with length >= 1');
+            
+            
+            %Overwrite the cells at mutPos with COPIES of mutCell (i.e. we
+            %can't have just a 'handle' pass by reference class)
+            for j=1:length(mutPos)
+                obj.allCells{mutPos} = copy(mutCell);
+            end
+            
+            
+        end
+
+
+
 
 
     end
