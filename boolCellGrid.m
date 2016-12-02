@@ -251,6 +251,20 @@ classdef boolCellGrid < handle
             %A and B are matrices of zero and 1 this is just the sum of the absolute value of the difference
             %between each entry in the final time step
             
+            %The caller might have passed the boolCellGrid, not just the
+            %matrices
+            if isa( A,'boolCellGrid' )
+                A = A.allStates;
+            end
+            if isa( B,'boolCellGrid' ) 
+                B = B.allStates;
+            end
+            
+            %Check to make sure we have the same size matrices
+            szA = size(A);
+            szB = size(B);
+            assert( szA(1)==szB(1) && szA(2)==szB(2) , ...
+                'The states need to be the same size');
             
             
             rhs = sum(sum(abs(A.allStates(:,:,end)-B.allStates(:,:,end))));
