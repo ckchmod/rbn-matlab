@@ -1,4 +1,4 @@
-classdef boolCell < handle
+classdef boolCell < matlab.mixin.Copyable
     %Boolean cell: this object models a cell with a boolean network
     
     properties

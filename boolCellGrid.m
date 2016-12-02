@@ -1,4 +1,4 @@
-classdef boolCellGrid < handle
+classdef boolCellGrid < matlab.mixin.Copyable
     %Boolean cell grid - this function implements a grid of cells modeled
     %as Random Boolean Networks, with randomized but uniform intra- and
     %inter-cellular connections
@@ -280,6 +280,37 @@ classdef boolCellGrid < handle
             
             rhs = sum(sum(abs(A.allStates(:,:,end)-B.allStates(:,:,end))));
         end
+
+        
+        %---------------------------------------------
+        % Insert mutant cell(s)
+        %---------------------------------------------
+        function obj = insert_mutants(obj, mutCellGrid, mutPos)
+            %This function takes a grid of (probably identical) cells and
+            %adds a cell of the type inside 'mutCellGrid' in position(s) 'mutPos'
+            
+            %Safety checks
+            assert( isa(obj,'boolCellGrid'),...
+                'First argument should be an object of class boolCellGrid');
+            assert( isa(mutCellGrid,'boolCellGrid'),...
+                'Second argument should be an object of class boolCellGrid');
+            assert( isvector(mutPos), ...
+                'Third argument should be a vector with length >= 1');
+            
+            
+            %Overwrite the cells at mutPos with COPIES of mutCell (i.e. we
+            %can't have just a 'handle' pass by reference class)
+            %   Note that each cell keeps track of 
+            for j=1:length(mutPos)
+                thisPos = mutPos(j);
+                obj.allCells{thisPos} = ...
+                    copy(mutCellGrid.allCells{thisPos});
+            end
+            
+            
+        end
+
+
 
 
 
