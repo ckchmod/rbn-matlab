@@ -1,4 +1,4 @@
-classdef boolCellGrid < handle
+classdef boolCellGrid < matlab.mixin.Copyable
     %Boolean cell grid - this function implements a grid of cells modeled
     %as Random Boolean Networks, with randomized but uniform intra- and
     %inter-cellular connections
