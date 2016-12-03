@@ -1,11 +1,11 @@
 Readme for the boolCellGrid.m grid class and the boolCell.m class
 
-LAST UPDATE: 12/1/2016
+LAST UPDATE: 12/3/2016
 
 Here are a couple examples to get everybody started, and they're at the top of the boolCellGrid class:
     
     EXAMPLE1 - 
-	% Create a RBN
+    % Create a RBN
     
     a=boolCellGrid('symmetric',4,18,2,.5,1, [], [], []); 
     a.update_all(50); 
