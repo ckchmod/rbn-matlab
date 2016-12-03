@@ -202,13 +202,18 @@ classdef boolCellGrid < matlab.mixin.Copyable
         %---------------------------------------------
         % I don't think our method of visualization is correct. I may have
         % to think a little more.
-        function plot_cells(obj, dt)
+        function plot_cells(obj, save, dt)
             %Plots the cell states
             %   Only 'lines' implemented so far
             
             if nargin == 1
+                save = false;
                 dt = 0.0;
             end
+            
+            if (save == true)
+                mov(1:obj.timenow) = struct('cdata', [], 'colormap', []);
+            end      
             
             isLine = strcmp(obj.topology,'line');
             
@@ -221,8 +226,12 @@ classdef boolCellGrid < matlab.mixin.Copyable
                     colormap(hot);
                     title(sprintf('State at step %d',jT));
                     drawnow;
-                    pause(dt)
+                    pause(dt);
+                    if (save == true)
+                        mov(jT) = getframe(gcf);
+                    end
                 end
+                movie2avi(mov, 'RBN.avi', 'compression', 'None');
             else
                       
                 for jT = 1:obj.timenow
@@ -247,12 +256,16 @@ classdef boolCellGrid < matlab.mixin.Copyable
                     title(sprintf('State at step %d',jT))
                     drawnow
                     pause(dt)
+                    if (save == true)
+                        mov(jT) = getframe(gcf);
+                    end
                 end
-                
             end
-            
-        end
+            if (save == true)
+                movie2avi(mov, 'RBN.avi', 'compression', 'None', 'FPS', 1/dt);
         
+            end
+        end
         
         %---------------------------------------------
         % Hamming distance
