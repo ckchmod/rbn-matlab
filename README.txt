@@ -1,25 +1,29 @@
 Readme for the boolCellGrid.m grid class and the boolCell.m class
 
-12/1/2016
+12/3/2016
 
 Here are a couple examples to get everybody started, and they're at the top of the boolCellGrid class:
 
     
-      EXAMPLE1 - 
-	% Create a RBN
+    EXAMPLE1 - 
+    % Create a RBN
     
     a=boolCellGrid('symmetric',4,18,2,.5,1, [], [], []); 
     a.update_all(50); 
-    a.plot_cells(1.0);
+    a.plot_cells;
      
 
-      EXAMPLE2 -
+    EXAMPLE2 -
     % Store arrays (Initial States, Truth Table, Wiring Nodes) and run the specified parameters
     
     i = a.initStates;
     t = a.initTtable;
     v = a.initvarF;
     b = boolCellGrid('symmetric',4,18,2,.5,1, i, t, v);
+
+    EXAMPLE3 -
+    % Saves movie at FPS = 1/dt.
+    b.plotCells(true, .5);
 
 
 Copy and paste the MATLAB code above to run some examples!
