@@ -1,6 +1,6 @@
 Readme for the boolCellGrid.m grid class and the boolCell.m class
 
-LAST UPDATE: 12/5/2016
+LAST UPDATE: 12/6/2016
 
 Here are a couple examples to get everybody started, and they're at the top of the boolCellGrid class:
     
@@ -24,21 +24,25 @@ Here are a couple examples to get everybody started, and they're at the top of t
     % Saves movie at FPS = 1/dt.
     b.plotCells(true, .5);
 
+    EXAMPLE4 - 
+    % Create a RBN with perturbation (small probability of gene flipping at each iteraiton)
+    % Default perturbation (no parameter specfied) is 0.
+
+    pert = .2;
+    a=boolCellGrid('symmetric',4,18,2,.5,1, [], [], [], .2); 
+    a.update_all(50)
+
 Copy and paste the MATLAB code above to run some examples!
-
-
 
 TO DO:
 
-	This function is explained in its header comment, but I'd love to talk about it more
+	Lypanuov Exponent
 
+	Different Communication Function
 
-	Prettier visualization; easiest way is to just add a 'plot_cells2' function to the 'boolCellGrid' class
+	Diversity
 
-
-	Actually take data and make sense of it!
-
-	Two nice features: 
+Two nice features: 
 
 	Each of the cells themselves have properties that can be changed, which can be done in the middle of a simulation
 
@@ -46,8 +50,4 @@ TO DO:
 
 	Thus we can just 'update_all' for a certain number of steps, change a cell's properties, and continue to simulate
 
-	Lypanuov Exponent
 
-	Different Communication Function
-
-	Diversity

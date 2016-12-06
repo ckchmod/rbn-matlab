@@ -1,78 +1,45 @@
 classdef boolCellGrid < matlab.mixin.Copyable
-    %Boolean cell grid - this function implements a grid of cells modeled
-    %as Random Boolean Networks, with randomized but uniform intra- and
-    %inter-cellular connections
+    %   Boolean cell grid - this function implements a grid of cells modeled
+    % as Random Boolean Networks, with randomized but uniform intra- and
+    % inter-cellular connections
     %   This class also supports several different topologies, as defined
-    %   by the 'neighbors' functions
-    %
-    % EXAMPLES
-    %
-    %     EXAMPLE1 - 
-    %     % Create a RBN
-    %     
-    %     a=boolCellGrid('symmetric',4,18,2,.5,1, [], [], []); 
-    %     a.update_all(50); 
-    %     a.plot_cells(1.0);
-    %      
-    % 
-    %     EXAMPLE2 -
-    %     % Store arrays (Initial States, Truth Table, Wiring Nodes) and run the specified parameters
-    %     
-    %     i = a.initStates;
-    %     t = a.initTtable;
-    %     v = a.initvarF;
-    %     b = boolCellGrid('symmetric',4,18,2,.5,1, i, t, v);
-    %           
-    % Dependencies
-    %   Other m-files required: boolCell.m
-    %   Subfunctions:
-    %   MAT-files required:
-    %
-    %   See also: boolCell.m, drosophila.m, boolean_solve.m (Author: Chris)
-    %
-    %
-    %
-    % Author: Charles Fieseler
-    % University of Washington, Dept. of Physics
-    % Email address: charles.fieseler@gmail.com
-    % Website: coming soon
-    % Created: 29-Nov-2016
-    %========================================
-    
+    % by the 'neighbors' functions
+
     
     properties
-        %Supplied by caller
-        topology    %So far, either orthogonal or symmetric
-        numCells    %Scalar, number of total cells
-        numGenes    %How many nodes there are within a cell
-        k           %How many intracellular connections each cell has
-        p           %Probability of function value taking on value of 1
-        bandwidth   %How many cells communicate intercellularly
-        initState   %Initial State
-        initTruth   %Initial Truth Table
-        initVar     %Initial Wiring Table
+        % Supplied by caller
+        topology    % So far, either orthogonal or symmetric
+        numCells    % Scalar, number of total cells
+        numGenes    % How many nodes there are within a cell
+        k           % How many intracellular connections each cell has
+        p           % Probability of function value taking on value of 1
+        bandwidth   % How many cells communicate intercellularly
+        initState   % Initial State
+        initTruth   % Initial Truth Table
+        initVar     % Initial Wiring Table
+        perturb     % Perturbation
         
         %Generated in the constructor
-        allCells    %Array of all the cells
-        neighbors   %Array whose rows are the neighbors of that cell
-        timenow     %Current time
-        initTtable  %Truth table
-        initvarF    %Intracellular connectivity
-        initStates  %Initial States
-        initInCells %Which cells receive input
-        initOutCells%Which cells produce output
-        criticality %Criticality measured by 2Kp(1-p)=1
-        crit_val    %LHS of critcality value
+        allCells    % Array of all the cells
+        neighbors   % Array whose rows are the neighbors of that cell
+        timenow     % Current time
+        initTtable  % Truth table
+        initvarF    % Intracellular connectivity
+        initStates  % Initial States
+        initInCells % Which cells receive input
+        initOutCells% Which cells produce output
+        criticality % Criticality measured by 2Kp(1-p)=1
+        crit_val    % LHS of critcality value
         
-        %For comparison with the 'drosophila.m' code
-        allStates   %All states through all timesteps in a 3-d tensor
+        % For comparison with the 'drosophila.m' code
+        allStates   % All states through all timesteps in a 3-d tensor
         
     end
     
     methods
         
         %Constructor
-        function obj = boolCellGrid(topology,numCells,numGenes,k,p,bandwidth, initState, initTruth, initVar)
+        function obj = boolCellGrid(topology,numCells,numGenes,k,p,bandwidth, initState, initTruth, initVar, perturb)
             
             rng('shuffle');
             
@@ -83,6 +50,12 @@ classdef boolCellGrid < matlab.mixin.Copyable
             obj.p         = p;
             obj.bandwidth = bandwidth;
             
+            if (nargin == 9)
+                obj.perturb = 0;
+                perturb = 0;
+            else
+                obj.perturb = perturb;
+            end
             
             %Get the randomized initial states
             if isempty(initState)
@@ -127,8 +100,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
                     ~( (initVar>=-1).*(initVar<=numGenes) ), 1 )),...
                     'Initial connectivity matrix (varF) should only connect to nodes within the cell')
                 assert((dim(1)==k && dim(2) == numGenes),...
-                    'Connectivity matrix should have size (k x numGenes)')
-                
+                    'Connectivity matrix should have size (k x numGenes)')                
                 varF = initVar;
             end
             
@@ -143,7 +115,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
             %list (this object is a grid)
             allCells = cell(numCells,1);
             for cellPos=1:numCells
-                allCells{cellPos}=boolCell(numGenes,k,p,bandwidth,Ttable,varF,outCells,inCells);
+                allCells{cellPos}=boolCell(numGenes,k,p,bandwidth,Ttable,varF,outCells,inCells,perturb);
                 
                 allCells{cellPos}.setPos(cellPos);
                 allCells{cellPos}.setState(initialStates(cellPos,:),1);
@@ -180,13 +152,24 @@ classdef boolCellGrid < matlab.mixin.Copyable
             
             for jT = tstart+1:(tstart+numSteps)
                 
-                %First update the intracellular dynamics
+                % If pertrubation exists, add perturbation
+                if (obj.perturb > 0)
+                    % Add Perturbation
+                    for jCell=1:obj.numCells
+                        thisCell = obj.allCells{jCell};
+                        thisCell.perturb_genes(jT);
+                    end
+                else
+                    % Do nothing
+                end
+                
+                % First update the intracellular dynamics
                 for jCell=1:obj.numCells
                     thisCell = obj.allCells{jCell};
                     thisCell.update_genes(jT);
                 end
                 
-                %Then update the intercellular communication dynamics
+                % Then update the intercellular communication dynamics
                 obj.update_intercell(jT);
                 
             end

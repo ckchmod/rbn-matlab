@@ -1,29 +1,30 @@
 classdef boolCell < matlab.mixin.Copyable
-    %Boolean cell: this object models a cell with a boolean network
+    %   Boolean cell: this object models a cell with a boolean network
     
     properties
-        %Set by the caller
-        numGenes    %The number of genes in the cell
-        k           %The number of connections each node has
-        p           %Probability of function value taking on value of 1
-        bandwidth   %The number of external connections the cell makes
-        Ttable      %The truth table for the network
-        varF        %Which intracellular connections a cell makes
-        outCells    %Which cells produce intercellular output
-        inCells     %Which cells receive intercellular input
+        % Set by the caller
+        numGenes    % The number of genes in the cell
+        k           % The number of connections each node has
+        p           % Probability of function value taking on value of 1
+        bandwidth   % The number of external connections the cell makes
+        Ttable      % The truth table for the network
+        varF        % Which intracellular connections a cell makes
+        outCells    % Which cells produce intercellular output
+        inCells     % Which cells receive intercellular input
+        perturb     % Perturbation
         
-        %Generated if a grid is set up
-        neighbors   %The neighbors of the cell
-        cellPos     %Position of the cell
+        % Generated if a grid is set up
+        neighbors   % The neighbors of the cell
+        cellPos     % Position of the cell
         
-        %Generated every step
+        % Generated every step
         states
     end
     
     methods
         
         %Constructor
-        function obj = boolCell(numGenes,k,p,bandwidth,Ttable,varF,outCells,inCells)
+        function obj = boolCell(numGenes,k,p,bandwidth,Ttable,varF,outCells,inCells, perturb)
             %Set some defaults
             if  nargin == 0
                 obj.numGenes  = 15;
@@ -34,6 +35,7 @@ classdef boolCell < matlab.mixin.Copyable
                 obj.varF      = [];
                 obj.outCells  = [];
                 obj.inCells   = [];
+                obj.perturb   = [];
             else
                 obj.numGenes  = numGenes;
                 obj.k         = k;
@@ -43,6 +45,7 @@ classdef boolCell < matlab.mixin.Copyable
                 obj.varF      = varF;
                 obj.outCells  = outCells;
                 obj.inCells   = inCells;
+                obj.perturb   = perturb;
             end
         end
         
@@ -53,11 +56,35 @@ classdef boolCell < matlab.mixin.Copyable
         function setState(thisCell, state, timestep)
             %Used to set the initial state
             thisCell.states(:,timestep) = state;
+        end 
+
+        function perturb_genes(thisCell, timestep)
+            %------------ Perturbation Update for all cells -------------%
+            perturbProb = thisCell.perturb;
+            
+            % Add gamma 
+            newRand = rand;
+            if ((1-(1-perturbProb)^(thisCell.numGenes)) > newRand && timestep >2);
+                
+                % Creating the perturbation gamma array
+                gamma = zeros(1, thisCell.numGenes);
+                for gene = 1:length(gamma)
+                    r = rand;
+                    if (perturbProb > rand)
+                        gamma(gene) = 1;
+                    else
+                        % do nothing
+                    end
+                end
+                thisCell.states(:,timestep-1) = mod(thisCell.states(:,timestep-1)+gamma',2);
+            else
+                % No perturbation      
+            end          
         end
 
         function update_genes(thisCell,timestep)
             %-------------- Boolean update for all cells ------------%
-            
+
                 for genecol = 1:thisCell.numGenes
                     tempVarf = [];
                     for generow = 1:size(thisCell.varF,1)
