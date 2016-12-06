@@ -381,7 +381,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
                             else
                                 jXplu1 = sub2ind(matSize,jY,jX+1-matSize(2));
                             end
-                            disp(jLin)
+                            %disp(jLin)
                             neighList(jLin,:) = [jYmin1, jYplu1, jXmin1, jXplu1];
                         end
                     end
