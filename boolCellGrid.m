@@ -291,7 +291,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
                 'The states need to be the same size');
             
             
-            rhs = sum(sum(abs(A.allStates(:,:,end)-B.allStates(:,:,end))));
+            rhs = sum(sum(abs(A(:,:,end)-B(:,:,end))));
         end
 
         
