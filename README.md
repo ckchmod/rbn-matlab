@@ -22,6 +22,7 @@ Here are a couple examples to get everybody started, and they're at the top of t
 
     EXAMPLE3 -
     % Saves movie at FPS = 1/dt.
+
     b.plotCells(true, .5);
 
     EXAMPLE4 - 
@@ -29,9 +30,9 @@ Here are a couple examples to get everybody started, and they're at the top of t
     % Default perturbation (no parameter specfied) is 0.
 
     pert = .2;
-    a=boolCellGrid('symmetric',4,18,2,.5,1, [], [], [], .2); 
+    a=boolCellGrid('symmetric',4,18,2,.5,1, [], [], [], pert); 
     a.update_all(50);
-    ssDist(a); 
+    ssDist(a) 
 
 Copy and paste the MATLAB code above to run some examples!
 
