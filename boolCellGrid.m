@@ -19,7 +19,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
         initVar     % Initial Wiring Table
         perturb     % Perturbation
         
-        %Generated in the constructor
+        % Generated in the constructor
         allCells    % Array of all the cells
         neighbors   % Array whose rows are the neighbors of that cell
         timenow     % Current time
@@ -32,17 +32,14 @@ classdef boolCellGrid < matlab.mixin.Copyable
         crit_val    % LHS of critcality value
         
         % For comparison with the 'drosophila.m' code
-        allStates   % All states through all timesteps in a 3-d tensor
-        
+        allStates   % All states        
     end
     
-    methods
-        
-        %Constructor
+    methods        
+        % Constructor
         function obj = boolCellGrid(topology,numCells,numGenes,k,p,bandwidth, initState, initTruth, initVar, perturb)
             
-            rng('shuffle');
-            
+            rng('shuffle');            
             obj.topology  = topology;
             obj.numCells  = numCells;
             obj.numGenes  = numGenes;
@@ -57,7 +54,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
                 obj.perturb = perturb;
             end
             
-            %Get the randomized initial states
+            % Get the randomized initial states
             if isempty(initState)
                 initialStates = genInit(obj);
             else
@@ -72,13 +69,11 @@ classdef boolCellGrid < matlab.mixin.Copyable
             end
             obj.initStates = initialStates;
             
-            %Generate the intercellular connectivity
+            % Generate the intercellular connectivity
             if isempty(initTruth)
                 [outCells, inCells] = genInOutCells(obj);
                 Ttable = genTtable(obj, inCells);
             else
-                % temporarily moved this to here..(may need to fix it
-                % later)
                 dim = size(initTruth);
                 inCells = 1:obj.bandwidth;
                 outCells = (obj.numGenes - obj.bandwidth +1):obj.numGenes;
@@ -91,7 +86,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
                 Ttable = initTruth;
             end
             
-            %Generate the intracellular connectivity
+            % Generate the intracellular connectivity
             if isempty(initVar)
                 varF = genvarF(obj, inCells);
             else
@@ -104,15 +99,15 @@ classdef boolCellGrid < matlab.mixin.Copyable
                 varF = initVar;
             end
             
-            %Set the properties just generated, which might change at some
-            %point in the simulation (thus they are just the initial values
+            % Set the properties just generated, which might change at some
+            %   point in the simulation (thus they are just the initial values
             obj.initTtable    = Ttable;
             obj.initvarF      = varF;
             obj.initOutCells  = outCells;
             obj.initInCells   = inCells;
             
-            %Create the cell objects that will be placed in this object's
-            %list (this object is a grid)
+            % Create the cell objects that will be placed in this object's
+            %   list (this object is a grid)
             allCells = cell(numCells,1);
             for cellPos=1:numCells
                 allCells{cellPos}=boolCell(numGenes,k,p,bandwidth,Ttable,varF,outCells,inCells,perturb);
@@ -120,8 +115,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
                 allCells{cellPos}.setPos(cellPos);
                 allCells{cellPos}.setState(initialStates(cellPos,:),1);
             end
-            obj.allCells = allCells;
-            
+            obj.allCells = allCells;          
             
             %Get and set the list of all neighbors
             obj.setNeighbors(numCells, topology);
@@ -138,20 +132,16 @@ classdef boolCellGrid < matlab.mixin.Copyable
                 obj.criticality = 'Chaotic';
             else
                 obj.criticality = 'Critical';
-            end      
-            
+            end           
         end   
         
         %---------------------------------------------
         % Full update function
         %---------------------------------------------
         function obj = update_all(obj,numSteps)
-            %Steps the simulation forward a given number of steps
-            
-            tstart = obj.timenow;
-            
-            for jT = tstart+1:(tstart+numSteps)
-                
+            %Steps the simulation forward a given number of steps         
+            tstart = obj.timenow;          
+            for jT = tstart+1:(tstart+numSteps)               
                 % If pertrubation exists, add perturbation
                 if (obj.perturb > 0)
                     % Add Perturbation
@@ -161,32 +151,24 @@ classdef boolCellGrid < matlab.mixin.Copyable
                     end
                 else
                     % Do nothing
-                end
-                
+                end              
                 % First update the intracellular dynamics
                 for jCell=1:obj.numCells
                     thisCell = obj.allCells{jCell};
                     thisCell.update_genes(jT);
-                end
-                
+                end                
                 % Then update the intercellular communication dynamics
-                obj.update_intercell(jT);
-                
-            end
-            
-            obj.timenow = jT;
-            
-            obj.get_states;
-            
+                obj.update_intercell(jT);              
+            end           
+            obj.timenow = jT;          
+            obj.get_states;        
         end
         
         %---------------------------------------------
         % Plotting function
         %---------------------------------------------
-        % I don't think our method of visualization is correct. I may have
-        % to think a little more.
         function plot_cells(obj, save, dt)
-            %Plots the cell states
+            % Plots the cell states
             %   Only 'lines' implemented so far
             
             if nargin == 1
@@ -203,7 +185,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
             if isLine
                 for jT = 1:obj.timenow
                     
-                    %Plot
+                    % Plot
                     imagesc(obj.allStates(:,:,jT).');
                     colorbar
                     colormap(hot);
@@ -219,20 +201,20 @@ classdef boolCellGrid < matlab.mixin.Copyable
                       
                 for jT = 1:obj.timenow
                     
-                    %We want to have a matrix of all the states, because
-                    %our actual cells are on a grid
+                    % We want to have a matrix of all the states, because
+                    %   our actual cells are on a grid
                     stateVec = obj.allStates(:,:,jT); %Get the vector of states
                     stateVecFlat = zeros(obj.numCells,1);
                     for jGene=1:obj.numGenes
-                        %Translate the gene state into a big integer
+                        % Translate the gene state into a big integer
                         stateVecFlat = stateVecFlat + stateVec(:,jGene)*2^(jGene-1);
                     end
                     uniqueVec = unique(stateVecFlat);
-                    %Now get the matrix form
+                    % Now get the matrix form
                     gridSide = sqrt(obj.numCells);
                     stateMat = reshape(stateVecFlat,[gridSide,gridSide]);
                     
-                    %Plot
+                    % Plot
                     imagesc(stateMat);
                     colorbar
                     colormap(winter(length(uniqueVec)));
@@ -245,8 +227,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
                 end
             end
             if (save == true)
-                movie2avi(mov, 'RBN.avi', 'compression', 'None', 'FPS', 1/dt);
-        
+                movie2avi(mov, 'RBN.avi', 'compression', 'None', 'FPS', 1/dt);       
             end
         end
         
@@ -254,12 +235,12 @@ classdef boolCellGrid < matlab.mixin.Copyable
         % Hamming distance
         %---------------------------------------------
         function rhs = ham(A,B)
-            %hamming distance is the number of positions at which A and B differ. Since
-            %A and B are matrices of zero and 1 this is just the sum of the absolute value of the difference
-            %between each entry in the final time step
+            % Hamming distance is the number of positions at which A and B differ. Since
+            %   A and B are matrices of zero and 1 this is just the sum of the absolute value of the difference
+            %   between each entry in the final time step
             
-            %The caller might have passed the boolCellGrid, not just the
-            %matrices
+            % The caller might have passed the boolCellGrid, not just the
+            %   matrices
             if isa( A,'boolCellGrid' )
                 A = A.allStates;
             end
@@ -267,52 +248,75 @@ classdef boolCellGrid < matlab.mixin.Copyable
                 B = B.allStates;
             end
             
-            %Check to make sure we have the same size matrices
+            % Check to make sure we have the same size matrices
             szA = size(A);
             szB = size(B);
             assert( szA(1)==szB(1) && szA(2)==szB(2) , ...
-                'The states need to be the same size');
-            
-            
+                'The states need to be the same size');   
             rhs = sum(sum(abs(A(:,:,end)-B(:,:,end))));
         end
-
         
         %---------------------------------------------
         % Insert mutant cell(s)
         %---------------------------------------------
         function obj = insert_mutants(obj, mutCellGrid, mutPos)
-            %This function takes a grid of (probably identical) cells and
-            %adds a cell of the type inside 'mutCellGrid' in position(s) 'mutPos'
+            % This function takes a grid of (probably identical) cells and
+            %   adds a cell of the type inside 'mutCellGrid' in position(s) 'mutPos'
             
-            %Safety checks
+            % Safety checks
             assert( isa(obj,'boolCellGrid'),...
                 'First argument should be an object of class boolCellGrid');
             assert( isa(mutCellGrid,'boolCellGrid'),...
                 'Second argument should be an object of class boolCellGrid');
             assert( isvector(mutPos), ...
                 'Third argument should be a vector with length >= 1');
-            
-            
-            %Overwrite the cells at mutPos with COPIES of mutCell (i.e. we
-            %can't have just a 'handle' pass by reference class)
-            %   Note that each cell keeps track of 
+                       
+            % Overwrite the cells at mutPos with COPIES of mutCell (i.e. we
+            %   can't have just a 'handle' pass by reference class)
             for j=1:length(mutPos)
                 thisPos = mutPos(j);
                 obj.allCells{thisPos} = ...
                     copy(mutCellGrid.allCells{thisPos});
+            end           
+        end
+        
+        %---------------------------------------------
+        % Find Steady State Distribution of Each Cell
+        %---------------------------------------------
+        function rhs = ssDist(A)
+            % Check/pass in a matrix, allStates
+            if isa( A,'boolCellGrid' )
+                A = A.allStates;
             end
             
+            % Return a Steady State Distributions
+            numberCells = length(A(:,1,1));
+            numberGenes = length(A(1,:,1));
+            numberT = length(A(1,1,:));
+            decMatrix = zeros(numberCells, numberT);
             
-        end
-
-
-
-
-
+            % Convert states to decimal representation
+            for ii = 1:numberCells
+                for tt = 1:numberT
+                    tempDec = 0;
+                    for jj = 1:numberGenes
+                        tempDec = tempDec + A(ii, jj, tt)*2^(numberGenes-jj);
+                    end
+                    decMatrix(ii,tt) = tempDec;
+                end
+            end
+            
+            % Return the Steady State Probability Distribution
+            counts = zeros(numberCells, 2^numberGenes);
+            for i = 1:length(decMatrix)
+                for j = 1:length(decMatrix(1,:))
+                    counts(i, decMatrix(i,j)+1) = counts(i, decMatrix(i,j)+1) + 1;
+                end
+            end
+            rhs = counts/(sum(counts(1,:)));
+        end      
     end
-    
-    
+        
     methods (Access=private)
         
         %---------------------------------------------
@@ -326,15 +330,11 @@ classdef boolCellGrid < matlab.mixin.Copyable
             switch topology
                 case 'symmetric'
                     
-                    gridSide = round(sqrt(numCells));
-                    
+                    gridSide = round(sqrt(numCells));                    
                     assert(gridSide-sqrt(numCells)<1e-4,...
-                        'Only square grids are supported for now');
-                    
-                    matSize(1:2) = [gridSide;gridSide];
-                    
-                    neighList = zeros(matSize(1)*matSize(2),4);
-                    
+                        'Only square grids are supported for now');                    
+                    matSize(1:2) = [gridSide;gridSide];                    
+                    neighList = zeros(matSize(1)*matSize(2),4);                    
                     for jY = 1:matSize(1)
                         for jX = 1:matSize(2)
                             
@@ -368,13 +368,11 @@ classdef boolCellGrid < matlab.mixin.Copyable
                             neighList(jLin,:) = [jYmin1, jYplu1, jXmin1, jXplu1];
                         end
                     end
-                    
+                   
                 case 'line'
                     
-                    neighList = zeros(numCells,2);
-                    
-                    for jX = 1:numCells
-                        
+                    neighList = zeros(numCells,2);                 
+                    for jX = 1:numCells                       
                         %1-d neighbors
                         if jX~=1
                             jXmin1 = jX-1;
@@ -385,23 +383,17 @@ classdef boolCellGrid < matlab.mixin.Copyable
                             jXplu1 = jX+1;
                         else
                             jXplu1 = 1;
-                        end
-                        
+                        end                     
                         neighList(jX,:) = [jXmin1, jXplu1];
                     end
                     
-
                 case 'orthogonal'
                     
                     gridSide = round(sqrt(numCells));
-                    
                     assert(gridSide-sqrt(numCells)<1e-4,...
-                        'Only square grids are supported for now');
-                    
-                    matSize(1:2) = [gridSide;gridSide];
-                    
+                        'Only square grids are supported for now');                    
+                    matSize(1:2) = [gridSide;gridSide];                   
                     neighList = zeros(matSize(1)*matSize(2),2);
-                    
                     for jY = 1:matSize(1)
                         for jX = 1:matSize(2)
                             
@@ -420,25 +412,17 @@ classdef boolCellGrid < matlab.mixin.Copyable
                                 jXmin1 = sub2ind(matSize,jY,jX-1);
                             else
                                 jXmin1 = sub2ind(matSize,jY,jX-1+matSize(2));
-                            end
-                            
-                            
+                            end                         
                             neighList(jLin,:) = [jYmin1, jXmin1];
                         end
                     end
-                    
-                    
                 otherwise
                     error('Your topology isn''t supported')
-            end
-            
+            end         
             %Set the object property
-            obj.neighbors = neighList;
-            
+            obj.neighbors = neighList;           
         end
-        
-        
-        
+                
         %---------------------------------------------
         % Generate the truth table for the cells
         %---------------------------------------------
@@ -473,9 +457,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
                     Ttable(randi((obj.k)^2),jGene) = 1;
                 end
             end
-
-        end
-        
+        end     
         
         %---------------------------------------------
         % Generate the output and input connections for the cells
@@ -496,31 +478,25 @@ classdef boolCellGrid < matlab.mixin.Copyable
                     %Do nothing; leave it at all -1
                 end
             end
-   
-        end
-        
+        end      
         
         %---------------------------------------------
         % Generate the output and input connections for the cells
         %---------------------------------------------
-        function initStates = genInit(obj)
-            
+        function initStates = genInit(obj)    
             initStates = randi([0,1],obj.numCells,obj.numGenes);
-            
         end
 
         %---------------------------------------------
         % Generate the output and input connections for the cells
         %---------------------------------------------
-        function [outC, inC] = genInOutCells(obj)
-            
+        function [outC, inC] = genInOutCells(obj)          
             %The connectivity is already randomized, so let's keep it
             %easy and have the first x nodes receive input and the last
             %x send output
             inC = 1:obj.bandwidth;
             outC = (obj.numGenes-obj.bandwidth+1):obj.numGenes;
         end
-
 
         %---------------------------------------------
         % Inter-cellular communication
@@ -558,11 +534,8 @@ classdef boolCellGrid < matlab.mixin.Copyable
                         double(logical(sum(neighStates)));
                     
                 end
-
-            end
-            
-        end
-        
+            end     
+        end      
         
         %---------------------------------------------
         % Get the states out from the single cell objects
@@ -572,11 +545,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
             for jCell = 1:obj.numCells
                 obj.allStates(jCell,:,:) = obj.allCells{jCell}.states;
             end
-            
         end
-    end
-    
-    
-    
+    end    
 end
 

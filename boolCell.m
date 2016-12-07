@@ -23,9 +23,9 @@ classdef boolCell < matlab.mixin.Copyable
     
     methods
         
-        %Constructor
+        % Constructor
         function obj = boolCell(numGenes,k,p,bandwidth,Ttable,varF,outCells,inCells, perturb)
-            %Set some defaults
+            % Set some defaults
             if  nargin == 0
                 obj.numGenes  = 15;
                 obj.k         = 0;
@@ -85,31 +85,29 @@ classdef boolCell < matlab.mixin.Copyable
         function update_genes(thisCell,timestep)
             %-------------- Boolean update for all cells ------------%
 
-                for genecol = 1:thisCell.numGenes
-                    tempVarf = [];
-                    for generow = 1:size(thisCell.varF,1)
-                        if (thisCell.varF(generow, genecol) == -1)
-                            % do nothing
-                        else
-                            %This is the list of nodes we will be making
-                            %connections to
-                            tempVarf = [tempVarf, thisCell.varF(generow,genecol)];
-                        end
-                    end
-                    
-                    if (isempty(tempVarf) == 0)
-                        wiringnode = 0;
-                        for wire = 1:length(tempVarf)
-                            % The wiring of input nodes to compute
-                            % thisCell's state at t+1
-                            wiringnode = wiringnode + 2^(length(tempVarf)-wire) * thisCell.states(tempVarf(wire),timestep-1);
-                        end
-                        thisCell.states(genecol,timestep) = thisCell.Ttable(wiringnode+1, genecol);
+            for genecol = 1:thisCell.numGenes
+                tempVarf = [];
+                for generow = 1:size(thisCell.varF,1)
+                    if (thisCell.varF(generow, genecol) == -1)
+                        % do nothing
+                    else
+                        %This is the list of nodes we will be making
+                        %   connections to
+                        tempVarf = [tempVarf, thisCell.varF(generow,genecol)];
                     end
                 end
-            
-        end
-        
+
+                if (isempty(tempVarf) == 0)
+                    wiringnode = 0;
+                    for wire = 1:length(tempVarf)
+                        % The wiring of input nodes to compute
+                        %   thisCell's state at t+1
+                        wiringnode = wiringnode + 2^(length(tempVarf)-wire) * thisCell.states(tempVarf(wire),timestep-1);
+                    end
+                    thisCell.states(genecol,timestep) = thisCell.Ttable(wiringnode+1, genecol);
+                end
+            end   
+        end       
     end
 end
     

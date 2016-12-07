@@ -25,12 +25,13 @@ Here are a couple examples to get everybody started, and they're at the top of t
     b.plotCells(true, .5);
 
     EXAMPLE4 - 
-    % Create a RBN with perturbation (small probability of gene flipping at each iteraiton)
+    % Create a RBN with perturbation (small probability of gene flipping at each iteraiton) and find the Steady State Distribution of each cell.
     % Default perturbation (no parameter specfied) is 0.
 
     pert = .2;
     a=boolCellGrid('symmetric',4,18,2,.5,1, [], [], [], .2); 
-    a.update_all(50)
+    a.update_all(50);
+    ssDist(a); 
 
 Copy and paste the MATLAB code above to run some examples!
 
