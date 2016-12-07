@@ -1,6 +1,6 @@
 Readme for the boolCellGrid.m grid class and the boolCell.m class
 
-LAST UPDATE: 12/6/2016
+LAST UPDATE: 12/7/2016
 
 Here are a couple examples to get everybody started, and they're at the top of the boolCellGrid class:
     

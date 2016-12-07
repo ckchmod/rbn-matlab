@@ -308,7 +308,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
             
             % Return the Steady State Probability Distribution
             counts = zeros(numberCells, 2^numberGenes);
-            for i = 1:length(decMatrix)
+            for i = 1:length(decMatrix(:,1))
                 for j = 1:length(decMatrix(1,:))
                     counts(i, decMatrix(i,j)+1) = counts(i, decMatrix(i,j)+1) + 1;
                 end
