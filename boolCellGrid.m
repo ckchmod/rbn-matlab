@@ -30,6 +30,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
         initOutCells% Which cells produce output
         criticality % Criticality measured by 2Kp(1-p)=1
         crit_val    % LHS of critcality value
+        seed        % Seed for the random number generator
         
         % For comparison with the 'drosophila.m' code
         allStates   % All states        
@@ -37,9 +38,16 @@ classdef boolCellGrid < matlab.mixin.Copyable
     
     methods        
         % Constructor
-        function obj = boolCellGrid(topology,numCells,numGenes,k,p,bandwidth, initState, initTruth, initVar, perturb)
+        function obj = boolCellGrid(topology,numCells,numGenes,k,p,bandwidth, initState, initTruth, initVar, perturb, seed)
             
-            rng('shuffle');            
+            if ~exist('seed','var')
+                rng('shuffle');
+                obj.seed = rng;
+            else
+                rng(seed);
+                obj.seed = seed;
+            end
+            
             obj.topology  = topology;
             obj.numCells  = numCells;
             obj.numGenes  = numGenes;
@@ -47,7 +55,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
             obj.p         = p;
             obj.bandwidth = bandwidth;
             
-            if (nargin == 9)
+            if ~exist('perturb','var')
                 obj.perturb = 0;
                 perturb = 0;
             else
