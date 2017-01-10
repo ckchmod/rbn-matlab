@@ -64,7 +64,7 @@ classdef boolCell < matlab.mixin.Copyable
             
             % Add gamma 
             newRand = rand;
-            if ((1-(1-perturbProb)^(thisCell.numGenes)) > newRand && timestep >2);
+            if ((1-(1-perturbProb)^(thisCell.numGenes)) > newRand);
                 
                 % Creating the perturbation gamma array
                 gamma = zeros(1, thisCell.numGenes);
@@ -76,7 +76,7 @@ classdef boolCell < matlab.mixin.Copyable
                         % do nothing
                     end
                 end
-                thisCell.states(:,timestep-1) = mod(thisCell.states(:,timestep-1)+gamma',2);
+                thisCell.states(:,timestep) = mod(thisCell.states(:,timestep)+gamma',2);
             else
                 % No perturbation      
             end          

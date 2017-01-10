@@ -150,7 +150,15 @@ classdef boolCellGrid < matlab.mixin.Copyable
             %Steps the simulation forward a given number of steps         
             tstart = obj.timenow;          
             for jT = tstart+1:(tstart+numSteps)               
-                % If pertrubation exists, add perturbation
+                % First update the intracellular dynamics
+                for jCell=1:obj.numCells
+                    thisCell = obj.allCells{jCell};
+                    thisCell.update_genes(jT);
+                end                
+                % Then update the intercellular communication dynamics
+                obj.update_intercell(jT);              
+            
+		% If pertrubation exists, add perturbation
                 if (obj.perturb > 0)
                     % Add Perturbation
                     for jCell=1:obj.numCells
@@ -160,14 +168,7 @@ classdef boolCellGrid < matlab.mixin.Copyable
                 else
                     % Do nothing
                 end              
-                % First update the intracellular dynamics
-                for jCell=1:obj.numCells
-                    thisCell = obj.allCells{jCell};
-                    thisCell.update_genes(jT);
-                end                
-                % Then update the intercellular communication dynamics
-                obj.update_intercell(jT);              
-            end           
+	    end           
             obj.timenow = jT;          
             obj.get_states;        
         end
