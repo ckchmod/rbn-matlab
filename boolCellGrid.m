@@ -460,11 +460,11 @@ classdef boolCellGrid < matlab.mixin.Copyable
             %given gene
             %   Note that the inCells are special and will always have
             %   full -1 Ttables
-            for jGene = length(inCells)+1:obj.numGenes
-                if isempty(find(Ttable(:,jGene), 1))
-                    Ttable(randi((obj.k)^2),jGene) = 1;
-                end
-            end
+            %for jGene = length(inCells)+1:obj.numGenes
+            %    if isempty(find(Ttable(:,jGene), 1))
+            %        Ttable(randi((obj.k)^2),jGene) = 1;
+            %    end
+            %end
         end     
         
         %---------------------------------------------
